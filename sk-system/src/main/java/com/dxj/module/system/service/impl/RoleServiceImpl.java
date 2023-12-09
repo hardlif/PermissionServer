@@ -54,7 +54,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<RoleDTO> queryAll() {
-        Sort sort = new Sort(Sort.Direction.ASC, "level");
+        Sort sort = Sort.by(Sort.Direction.ASC, "level");
         return roleMapper.toDto(roleRepository.findAll(sort));
     }
 

@@ -4,7 +4,7 @@ spring:
     druid:
       db-type: com.alibaba.druid.pool.DruidDataSource
       driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-      url: jdbc:log4jdbc:mysql://localhost:3306/sk-admin?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false
+      url: jdbc:log4jdbc:mysql://192.168.0.198:3306/PermissonDataBase?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
       username: root
       password: 123456
       # 初始连接数
@@ -47,7 +47,7 @@ spring:
 # 登录相关配置
 login:
   # 登录缓存
-  cache-enable: true
+  cache-enable: false
   #  是否限制单用户登录
   single: false
   #  验证码

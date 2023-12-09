@@ -71,8 +71,9 @@ public class PageUtil extends cn.hutool.core.util.PageUtil {
             } else {
                 d = Sort.Direction.valueOf(order.toUpperCase());
             }
-            Sort s = new Sort(d, sort);
-            pageable = PageRequest.of(pageNumber - 1, pageSize, s);
+            //TODO FIX BUGS
+//            Sort s = new Sort(d, sort);
+            pageable = PageRequest.of(pageNumber - 1, pageSize, d,sort);
         } else {
             pageable = PageRequest.of(pageNumber - 1, pageSize);
         }

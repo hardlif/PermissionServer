@@ -65,6 +65,7 @@ public class TokenFilter extends GenericFilterBean {
                     userCacheClean.cleanUserCache(String.valueOf(tokenProvider.getClaims(token).get(TokenProvider.AUTHORITIES_KEY)));
                 }
             }
+            //如果token在redis里有则放入上下文(SecurityContextHolder),并在redis里续期token
             if (onlineUserDto != null && StringUtils.hasText(token)) {
                 Authentication authentication = tokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
