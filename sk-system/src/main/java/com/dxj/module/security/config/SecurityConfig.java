@@ -2,6 +2,7 @@ package com.dxj.module.security.config;
 
 import com.dxj.annotation.AnonymousAccess;
 import com.dxj.constant.RequestMethodEnum;
+import com.dxj.exception.handler.ExceptionHandlerFilter;
 import com.dxj.module.security.config.bean.SecurityProperties;
 import com.dxj.module.security.service.UserCacheClean;
 import com.dxj.module.security.domain.entity.JwtAccessDeniedHandler;
@@ -14,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,6 +25,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.method.HandlerMethod;
@@ -42,6 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final TokenProvider tokenProvider;
     private final CorsFilter corsFilter;
+    private final ExceptionHandlerFilter exceptionHandlerFilter;
     private final JwtAuthenticationEntryPoint authenticationErrorHandler;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final ApplicationContext applicationContext;
@@ -71,6 +75,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 禁用 CSRF
                 .csrf().disable()
                 .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(exceptionHandlerFilter, LogoutFilter.class)
                 // 授权异常
                 .exceptionHandling()
                 .authenticationEntryPoint(authenticationErrorHandler)
@@ -105,6 +110,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/file/**").permitAll()
                 // 阿里巴巴 druid
                 .antMatchers("/druid/**").permitAll()
+                //测试的接口
+                .antMatchers("/test/**").permitAll()
                 // 放行OPTIONS请求
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // 自定义匿名访问所有url放行：允许匿名和带Token访问，细腻化到每个 Request 类型
@@ -173,4 +180,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private TokenConfigurer securityConfigurerAdapter() {
         return new TokenConfigurer(tokenProvider, properties, onlineUserService, userCacheClean);
     }
+
+//    @Bean
+//    @Override
+//    public AuthenticationManager authenticationManagerBean() throws Exception {
+//        return super.authenticationManagerBean();
+//    }
 }

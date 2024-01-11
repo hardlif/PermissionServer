@@ -86,7 +86,7 @@ public class TokenProvider implements InitializingBean {
      * @param token /
      * @return /
      */
-    Authentication getAuthentication(String token) {
+    public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token);
 
         // fix bug: 当前用户如果没有任何权限时，在输入用户名后，刷新验证码会抛IllegalArgumentException

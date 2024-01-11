@@ -1,6 +1,7 @@
 package com.dxj.module.security.controller;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
 import com.dxj.annotation.AnonymousAccess;
@@ -28,20 +29,26 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author Sinkiang
@@ -72,10 +79,12 @@ public class AuthController {
         String code = (String) redisUtils.get(authUser.getUuid());
         // 清除验证码
         redisUtils.del(authUser.getUuid());
-        if (StringUtils.isBlank(code)) {
+        //todo 测试时无视验证码
+
+        if (false&&StringUtils.isBlank(code)) {
             throw new SkException("验证码不存在或已过期");
         }
-        if (StringUtils.isBlank(authUser.getCode()) || !authUser.getCode().equalsIgnoreCase(code)) {
+        if (false&&(StringUtils.isBlank(authUser.getCode()) || !authUser.getCode().equalsIgnoreCase(code))) {
             throw new SkException("验证码错误");
         }
         UsernamePasswordAuthenticationToken authenticationToken =
@@ -131,5 +140,40 @@ public class AuthController {
     public ResponseEntity<Object> logout(HttpServletRequest request) {
         onlineUserService.logout(tokenProvider.getToken(request));
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+    @RequestMapping("/getAuthentication")
+    ResponseEntity<List<String>> getAuthenticationByToken(){
+        Authentication  authentication = SecurityContextHolder.getContext().getAuthentication();
+        List<String> list = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        return ResponseEntity.ok(list);
+    }
+    @RequestMapping("/getAuthentication2")
+    ResponseEntity<UsernamePasswordAuthenticationToken> getAuthenticationByToken2(HttpServletRequest request) {
+        String token = resolveToken(request);
+        // 对于 Token 为空的不需要去查 Redis
+        if (token==null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken)tokenProvider.getAuthentication(token);
+        return  ResponseEntity.ok(authentication);
+
+    }
+    /**
+     * 初步检测Token
+     *
+     * @param request /
+     * @return /
+     */
+    private String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(properties.getHeader());
+        if (org.springframework.util.StringUtils.hasText(bearerToken) && bearerToken.startsWith(properties.getTokenStartWith())) {
+            // 去掉令牌前缀
+            return bearerToken.replace(properties.getTokenStartWith(), "");
+        } else {
+            log.debug("非法Token：{}", bearerToken);
+        }
+        return null;
     }
 }

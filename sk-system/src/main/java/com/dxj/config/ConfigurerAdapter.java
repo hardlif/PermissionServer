@@ -31,6 +31,7 @@ public class ConfigurerAdapter implements WebMvcConfigurer {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
+//       springboot2.4以上不能这样了
 //        config.addAllowedOrigin("*");
         config.addAllowedOriginPattern("*");
         config.addAllowedHeader("*");

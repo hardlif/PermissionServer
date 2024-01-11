@@ -59,8 +59,9 @@ public class TokenFilter extends GenericFilterBean {
                 onlineUserDto = onlineUserService.getOne(properties.getOnlineKey() + token);
             } catch (ExpiredJwtException e) {
                 log.error(e.getMessage());
-                cleanUserCache = true;
-            } finally {
+//                cleanUserCache = true;
+            }
+            finally {
                 if (cleanUserCache || Objects.isNull(onlineUserDto)) {
                     userCacheClean.cleanUserCache(String.valueOf(tokenProvider.getClaims(token).get(TokenProvider.AUTHORITIES_KEY)));
                 }

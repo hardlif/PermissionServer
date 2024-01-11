@@ -151,7 +151,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(key = "'username:' + #p0")
+//    @Cacheable(key = "'username:' + #p0")
     public UserDTO findByName(String userName) {
         User user = userRepository.findByUsername(userName);
         if (user == null) {

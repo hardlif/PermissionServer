@@ -1,9 +1,11 @@
 package com.dxj.exception.handler;
 
+import com.dxj.enumeration.PrivateHttpStatus;
 import com.dxj.exception.EntityExistException;
 import com.dxj.exception.EntityNotFoundException;
 import com.dxj.exception.SkException;
 import com.dxj.util.ThrowableUtil;
+import io.jsonwebtoken.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,9 +44,17 @@ public class GlobalExceptionHandler {
         // 打印堆栈信息
         String message = "坏的凭证".equals(e.getMessage()) ? "用户名或密码不正确" : e.getMessage();
         log.error(message);
-        return buildResponseEntity(ApiError.error(message));
+        return buildResponseEntity(ApiError.error(PrivateHttpStatus.USERNAME_PASSWORD_WRONG.getStatus(),
+                PrivateHttpStatus.USERNAME_PASSWORD_WRONG.getMessage()));
     }
-
+    /**
+     * 处理JWT解析的异常
+     */
+    @ExceptionHandler(SignatureException.class)
+    public ResponseEntity<ApiError> handleJwtException(SignatureException e) {
+        log.error(e.getMessage());
+        return buildResponseEntity(ApiError.error(HttpStatus.UNAUTHORIZED.value(),e.getMessage()));
+    }
     /**
      * 处理自定义异常
      */
