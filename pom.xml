@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.dxj</groupId>
-    <artifactId>sk-admin</artifactId>
+    <artifactId>PermissionServer</artifactId>
     <packaging>pom</packaging>
     <version>2.0</version>
     <name>sk-admin 管理系统</name>
